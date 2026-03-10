@@ -8,8 +8,8 @@ export const getStrategicAnalysis = async (
   analysis: AnalysisResult,
   history: ChatMessage[]
 ): Promise<string> => {
-  const model = 'gemini-3-flash-preview';
-  
+  const model = 'gemini-2.0-flash';
+
   const systemInstruction = `
     Você é o consultor de importação "YUANWARE AI", especialista em Streetwear e logística China-Brasil.
     Sua personalidade é direta, profissional, agressiva mas cautelosa, focada em ROI e viabilidade de mercado.
