@@ -8,7 +8,7 @@ export const getStrategicAnalysis = async (
   analysis: AnalysisResult,
   history: ChatMessage[]
 ): Promise<string> => {
-  const model = 'gemini-2.0-flash';
+  const model = 'gemini-2.5-flash';
 
   const systemInstruction = `
     Você é o consultor de importação "YUANWARE AI", especialista em importações de produtos da China para o Brasil (Streetwear, roupas, acessórios, eletrônicos e outros artigos).
