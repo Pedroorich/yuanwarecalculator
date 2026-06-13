@@ -66,26 +66,43 @@ const ItemRow = memo(({
 ItemRow.displayName = 'ItemRow';
 
 // Componente de Linha de Resultado Memoizado para Alta Performance
-const ResultItemRow = memo(({ item, rate }: { item: CalculatedItem; rate: number }) => {
+const ResultItemRow = memo(({ item, rate, markup }: { item: CalculatedItem; rate: number; markup: number }) => {
+  const unitProfitBRL = item.suggestedPriceBRL - item.unitCostBRL;
   return (
     <tr className="border-b border-black/5 last:border-0 hover:bg-zinc-50/30 transition-all group">
       <td className="px-8 py-6">
         <p className="font-bold uppercase tracking-tight text-zinc-700 group-hover:text-black transition-colors">
           {item.name || 'Sem Identificação'}
         </p>
-        <p className="text-[10px] text-zinc-300 font-mono">Lote: {item.quantity} un.</p>
+        <p className="text-[10px] text-zinc-400 font-mono">Qtd: {item.quantity} un.</p>
       </td>
-      <td className="px-8 py-6">
-        <p className="font-black font-mono text-black">R$ {item.totalCostBRL.toFixed(0)}</p>
-        <p className="text-[9px] text-zinc-300 uppercase font-bold tracking-tighter">Base: R$ {(item.priceYuan * rate).toFixed(0)}</p>
+      <td className="px-8 py-6 space-y-1">
+        <p className="font-black font-mono text-black">
+          R$ {item.unitCostBRL.toFixed(2)} <span className="text-[10px] text-zinc-400 font-normal">un.</span>
+        </p>
+        <p className="text-[9px] text-zinc-300 uppercase font-bold tracking-tighter leading-tight">
+          Base: R$ {(item.priceYuan * rate).toFixed(2)} <span className="text-zinc-200">|</span> Fr: R$ {item.distributedFreightBRL.toFixed(2)} <span className="text-zinc-200">|</span> Imp: R$ {item.distributedTaxBRL.toFixed(2)}
+        </p>
+        <p className="text-[10px] text-zinc-400 font-mono">
+          Total: R$ {item.totalCostBRL.toFixed(2)}
+        </p>
       </td>
-      <td className="px-8 py-6">
-        <p className="font-black font-mono text-zinc-400">R$ {item.suggestedPriceBRL.toFixed(0)}</p>
-        <p className="text-[9px] text-zinc-300 uppercase font-bold">Sugestão Yuanware</p>
+      <td className="px-8 py-6 space-y-1">
+        <p className="font-black font-mono text-zinc-600">
+          R$ {item.suggestedPriceBRL.toFixed(2)} <span className="text-[10px] text-zinc-400 font-normal">un.</span>
+        </p>
+        <p className="text-[10px] text-zinc-400 font-mono">
+          Total: R$ {(item.suggestedPriceBRL * item.quantity).toFixed(2)}
+        </p>
+        <p className="text-[9px] text-zinc-300 uppercase font-bold">Margem: {markup.toFixed(1)}x</p>
       </td>
-      <td className="px-8 py-6">
-        <p className="font-black font-mono text-red">R$ {item.profitBRL.toFixed(0)}</p>
-        <p className="text-[9px] text-zinc-300 uppercase font-bold">Spread Est.</p>
+      <td className="px-8 py-6 space-y-1">
+        <p className="font-black font-mono text-red">
+          R$ {unitProfitBRL.toFixed(2)} <span className="text-[10px] text-zinc-400 font-normal">un.</span>
+        </p>
+        <p className="text-[10px] text-zinc-400 font-mono">
+          Total: R$ {item.profitBRL.toFixed(2)}
+        </p>
       </td>
     </tr>
   );
@@ -349,7 +366,7 @@ const App: React.FC = () => {
           itemTax = totalUnits > 0 ? (tax / totalUnits) * item.quantity : 0;
         }
 
-        const totalCostBRL = (itemTotalYuan * rate) + (itemFreight * rate) + (itemTax * rate);
+        const totalCostBRL = (itemTotalYuan * rate) + (itemFreight * rate) + itemTax;
         const unitCostBRL = item.quantity > 0 ? totalCostBRL / item.quantity : 0;
         const suggestedPriceBRL = processRounding(unitCostBRL * markup);
         const totalRevenueItem = suggestedPriceBRL * item.quantity;
@@ -365,7 +382,7 @@ const App: React.FC = () => {
           suggestedPriceBRL,
           profitBRL,
           distributedFreightBRL: (itemFreight * rate) / (item.quantity || 1),
-          distributedTaxBRL: (itemTax * rate) / (item.quantity || 1)
+          distributedTaxBRL: itemTax / (item.quantity || 1)
         };
       });
 
@@ -639,7 +656,7 @@ const App: React.FC = () => {
 
               <div className="bg-white rounded-[3rem] border border-black/5 luxury-shadow overflow-hidden">
                 <div className="p-8 border-b border-black/5 bg-zinc-50/50 flex items-center justify-between">
-                  <p className="text-[11px] font-black tracking-[0.4em] uppercase text-zinc-400">Detalhamento Unitário (R$)</p>
+                  <p className="text-[11px] font-black tracking-[0.4em] uppercase text-zinc-400">Detalhamento Unitário & Total (R$)</p>
                   <div className="flex items-center gap-2 text-zinc-300">
                     <Info size={14} />
                     <span className="text-[9px] uppercase font-bold tracking-widest text-zinc-400">Dados Consolidados</span>
@@ -649,10 +666,10 @@ const App: React.FC = () => {
                   <table className="w-full text-left table-auto border-collapse">
                     <thead className="bg-white sticky top-0 z-10 shadow-sm">
                       <tr className="text-[10px] text-zinc-400 uppercase font-black tracking-widest border-b border-black/5">
-                        <th className="px-8 py-6">Item</th>
-                        <th className="px-8 py-6">Custo Final</th>
-                        <th className="px-8 py-6">Sugestão Venda</th>
-                        <th className="px-8 py-6">Lucro Un.</th>
+                        <th className="px-8 py-6">Item / Lote</th>
+                        <th className="px-8 py-6">Custo Final (Un / Total)</th>
+                        <th className="px-8 py-6">Sugestão Venda (Un / Total)</th>
+                        <th className="px-8 py-6">Lucro Estimado (Un / Total)</th>
                       </tr>
                     </thead>
                     <tbody className="text-sm">
@@ -661,6 +678,7 @@ const App: React.FC = () => {
                           key={item.id} 
                           item={item} 
                           rate={rate} 
+                          markup={markup}
                         />
                       ))}
                     </tbody>

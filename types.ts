@@ -15,6 +15,7 @@ export interface CalculatedItem extends ProductItem {
   distributedFreightBRL: number;
   distributedTaxBRL: number;
   totalCostBRL: number;
+  unitCostBRL: number;
   suggestedPriceBRL: number;
   profitBRL: number;
 }
