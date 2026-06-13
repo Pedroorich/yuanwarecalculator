@@ -702,7 +702,7 @@ const App: React.FC = () => {
                     </div>
                   ) : chatHistory.map((msg, i) => (
                     <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[85%] px-6 py-4 rounded-[1.5rem] leading-relaxed ${msg.role === 'user' ? 'bg-zinc-100 text-black font-medium' : 'bg-white border border-black/10 text-black italic shadow-sm'}`}>
+                      <div className={`max-w-[85%] px-6 py-4 rounded-[1.5rem] leading-relaxed whitespace-pre-line ${msg.role === 'user' ? 'bg-zinc-100 text-black font-medium' : 'bg-white border border-black/10 text-black italic shadow-sm'}`}>
                         {msg.content}
                       </div>
                     </div>
